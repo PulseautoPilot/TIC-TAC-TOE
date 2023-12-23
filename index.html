@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        #ticTacToeBoard {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            gap: 5px;
+        }
+
+        .cell {
+            width: 100px;
+            height: 100px;
+            font-size: 2em;
+            text-align: center;
+            line-height: 100px;
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            cursor: pointer;
+        }
+
+        .cell:hover {
+            background-color: #ddd;
+        }
+
+        .message {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 1.5em;
+        }
+    </style>
+    <title>Tic Tac Toe</title>
+</head>
+<body>
+
+<div id="ticTacToeBoard"></div>
+<div class="message"></div>
+
+<script>
+    const board = document.getElementById("ticTacToeBoard");
+    const message = document.querySelector(".message");
+    const cells = [];
+
+    let currentPlayer = "X";
+    let gameBoard = ["", "", "", "", "", "", "", "", ""];
+
+    // Initialize the game board
+    function initializeBoard() {
+        for (let i = 0; i < 9; i++) {
+            const cell = document.createElement("div");
+            cell.className = "cell";
+            cell.setAttribute("data-index", i);
+            cell.addEventListener("click", handleCellClick);
+            cells.push(cell);
+            board.appendChild(cell);
+        }
+    }
+
+    // Handle cell click event
+    function handleCellClick(event) {
+        const index = event.target.getAttribute("data-index");
+
+        // Check if the cell is empty
+        if (!gameBoard[index]) {
+            gameBoard[index] = currentPlayer;
+            cells[index].innerText = currentPlayer;
+            cells[index].style.pointerEvents = "none"; // Disable further clicks on this cell
+
+            // Check for a winner
+            if (checkWinner()) {
+                message.innerText = `${currentPlayer} wins!`;
+                disableClicks();
+            } else if (gameBoard.every(cell => cell !== "")) {
+                // Check for a tie
+                message.innerText = "It's a tie!";
+            } else {
+                // Switch to the next player
+                currentPlayer = currentPlayer === "X" ? "O" : "X";
+                message.innerText = `${currentPlayer}'s turn`;
+            }
+        }
+    }
+
+    // Check for a winner
+    function checkWinner() {
+        const winningCombinations = [
+            [0, 1, 2], [3, 4, 5], [6, 7, 8], // Rows
+            [0, 3, 6], [1, 4, 7], [2, 5, 8], // Columns
+            [0, 4, 8], [2, 4, 6]             // Diagonals
+        ];
+
+        for (const combo of winningCombinations) {
+            const [a, b, c] = combo;
+            if (gameBoard[a] && gameBoard[a] === gameBoard[b] && gameBoard[a] === gameBoard[c]) {
+                highlightWinnerCells(combo);
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    // Highlight cells that form a winning combination
+    function highlightWinnerCells(combo) {
+        combo.forEach(index => {
+            cells[index].style.backgroundColor = "#8aff80";
+        });
+    }
+
+    // Disable clicks on cells after the game ends
+    function disableClicks() {
+        cells.forEach(cell => {
+            cell.style.pointerEvents = "none";
+        });
+    }
+
+    // Reset the game
+    function resetGame() {
+        gameBoard = ["", "", "", "", "", "", "", "", ""];
+        currentPlayer = "X";
+        cells.forEach(cell => {
+            cell.innerText = "";
+            cell.style.backgroundColor = "#f0f0f0";
+            cell.style.pointerEvents = "auto";
+        });
+        message.innerText = `${currentPlayer}'s turn`;
+    }
+
+    initializeBoard();
+</script>
+
+</body>
+</html>
